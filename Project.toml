@@ -3,6 +3,9 @@ uuid = "c4752cc9-fe37-4e66-9e7b-290ad5257808"
 authors = ["Tung Anh Vu <vu.tunganh96@gmail.com>"]
 version = "0.1.0"
 
+[deps]
+ParserCombinator = "fae87a5f-d1ad-5cf0-8f61-c941e1580b46"
+
 [compat]
 julia = "1"
 

@@ -1,6 +1,7 @@
 using SatSolver
 using Test
 
+
 @testset "SatSolver.jl" begin
-    # Write your own tests here.
+  include("nnf_parser.jl")
 end
