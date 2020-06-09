@@ -9,9 +9,15 @@ It follows that negative literals precede positive literals.
 """
 struct Clause
   literals::Vector{Int}
+
+  Clause(literals::Vector{Int}) = new(sort(literals))
 end
 
-Clause(literals::Vararg{Int}) = Clause(sort([literals...]))
+Clause(literals::Vararg{Int}) = Clause([literals...])
+
+for f in readonly_vector_wrapper_functions
+  @eval Base.$f(cl::Clause, args...) = Base.$f(cl.literals, args...)
+end
 
 function ==(c1::Clause, c2::Clause)
   c1.literals == c2.literals
