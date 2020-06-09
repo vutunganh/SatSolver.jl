@@ -1,4 +1,7 @@
-import Base.==, Base.show
+import Base: ==
+
+readonly_vector_wrapper_functions = (:getindex, :firstindex, :lastindex, :iterate, :length, :size, :keys)
+vector_wrapper_functions = (readonly_vector_wrapper_functions..., :setindex!)
 
 """
 A clause is a set of (non-conflicting) literals.
@@ -43,6 +46,10 @@ end
 
 function clause_count(formula::Formula)
   length(formula.clauses)
+end
+
+for f in readonly_vector_wrapper_functions
+  @eval Base.$f(fla::Formula, args...) = Base.$f(fla.clauses, args...)
 end
 
 # TODO: Implement in subquadratic time.
