@@ -1,7 +1,6 @@
-import Base: ==
+import Base: ==, setindex!
 
 readonly_vector_wrapper_functions = (:getindex, :firstindex, :lastindex, :iterate, :length, :size, :keys)
-vector_wrapper_functions = (readonly_vector_wrapper_functions..., :setindex!)
 
 """
 A clause is a set of (non-conflicting) literals.
@@ -72,4 +71,92 @@ function ==(f1::Formula, f2::Formula)
   end
 
   return true
+end
+
+struct PartialAssignment
+  assignment::Vector{Int8}
+end
+
+PartialAssignment(n::Number) = PartialAssignment(zeros(Int8, n))
+
+for f in readonly_vector_wrapper_functions
+  @eval Base.$f(pa::PartialAssignment, args...) = Base.$f(pa.assignment, args...)
+end
+
+function setindex!(pa::PartialAssignment, value::T, key) where {T <: Integer}
+  @assert -1 <= value <= 1
+  pa.assignment[key] = value
+end
+
+function ==(pa1::PartialAssignment, pa2::PartialAssignment)
+  pa1.assignment == pa2.assignment
+end
+
+function copy(pa::PartialAssignment)
+  PartialAssignment(copy(pa.assignment))
+end
+
+function is_clause_satisfied(cl::Clause, pa::PartialAssignment)
+  any(cl) do l
+    sign(l) == pa[abs(l)]
+  end
+end
+
+function is_literal_undecided(l::Int, pa::PartialAssignment)::Bool
+  0 == pa[abs(l)]
+end
+
+"""
+    clause_size(cl::Clause, pa::PartialAssignment)
+
+Counts the number of unsatisfied literals in `cl` with respect to partial
+assignment `pa`. If `cl` is satisfied, returns 0.
+
+See also: [`Clause`](@ref), [`PartialAssignment`](@ref).
+"""
+function clause_size(cl::Clause, pa::PartialAssignment)
+  if is_clause_satisfied(cl, pa)
+    return 0
+  end
+
+  count((l) -> is_literal_undecided(l, pa), cl)
+end
+
+function is_clause_unit(cl::Clause, pa::PartialAssignment)
+  1 == clause_size(cl, pa)
+end
+
+"""
+    is_clause_falsified(cl::Clause, pa::PartialAssignment)::Bool
+
+Returns true if all literals of `cl` are decided and `cl` is not satisfied.
+"""
+function is_clause_falsified(cl::Clause, pa::PartialAssignment)::Bool
+  !is_clause_satisfied(cl, pa) && 0 == clause_size(cl, pa)
+end
+
+"""
+    find_unit_literal(cl::Clause, pa::PartialAssignment)
+
+If `cl` is a unit clause, returns the “unit literal”, otherwise returns 0.
+
+See also: [`PartialAssignment`](@ref)
+"""
+function find_unit_literal(cl::Clause, pa::PartialAssignment)::Int
+  if !is_clause_unit(cl, pa)
+    return 0
+  end
+
+  cl[findfirst((l) -> is_literal_undecided(l, pa), cl)]
+end
+
+function find_unit_literal(fla::Formula, pa::PartialAssignment)
+  for cl in fla
+    tmp = find_unit_literal(cl, pa)
+    if 0 != tmp
+      return tmp
+    end
+  end
+
+  0
 end
