@@ -12,4 +12,6 @@ include("io.jl")
 
 export print_dimacs_cnf
 
+include("unit_propagation.jl")
+
 end # module
