@@ -1,5 +1,5 @@
 import SatSolver: AstNode, VariableNode, NotNode, AndNode, OrNode, create_ast,
-                  ast2cnf, add_clause!
+                  ast2cnf
 
 @testset "NNF formula parser" begin
   function test_case(input, reference)

@@ -35,18 +35,20 @@ Unlike `Clause`, no sorting is being done.
 See also: [`Clause`](@ref).
 """
 struct Formula
+  variable_count::UInt
   clauses::Vector{Clause}
 end
 
+function determine_variable_count(clauses::Vector{Clause})::UInt
+  maximum(clauses) do cl
+    maximum(abs, cl)
+  end
+end
+
+Formula(clauses::Vector{Clause}) = Formula(determine_variable_count(clauses),
+                                           clauses)
 Formula(clauses::Vararg{Clause}) = Formula([clauses...])
-
-function add_clause!(formula::Formula, clause::Clause)
-  push!(formula.clauses, clause)
-end
-
-function clause_count(formula::Formula)
-  length(formula.clauses)
-end
+Formula() = Formula(0, [])
 
 for f in readonly_vector_wrapper_functions
   @eval Base.$f(fla::Formula, args...) = Base.$f(fla.clauses, args...)
