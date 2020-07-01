@@ -1,4 +1,4 @@
-import Base: ==, setindex!
+import Base: ==, setindex!, copy
 
 readonly_vector_wrapper_functions = (:getindex, :firstindex, :lastindex, :iterate, :length, :size, :keys)
 
@@ -159,4 +159,21 @@ function find_unit_literal(fla::Formula, pa::PartialAssignment)
   end
 
   0
+end
+
+abstract type SatSolverResult end
+
+struct SatisfiableFormula <: SatSolverResult
+  satisfying_assignment::PartialAssignment
+end
+
+struct UnsatisfiableFormula <: SatSolverResult
+end
+
+function is_formula_satisfiable(res::SatisfiableFormula)
+  true
+end
+
+function is_formula_satisfiable(res::UnsatisfiableFormula)
+  false
 end
