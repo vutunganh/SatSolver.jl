@@ -2,7 +2,7 @@ module SatSolver
 
 include("formula.jl")
 
-export Clause, Formula
+export Clause, Formula, is_formula_satisfiable
 
 include("nnf_parser/nnf_parser.jl")
 
@@ -13,5 +13,11 @@ include("io.jl")
 export print_dimacs_cnf
 
 include("unit_propagation.jl")
+
+include("brute_force.jl")
+export brute_force
+
+include("dpll.jl")
+export dpll
 
 end # module
