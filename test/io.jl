@@ -24,7 +24,7 @@
     test_case(c4, "(-123)")
   end
 
-  f0 = Formula()
+  f0 = Formula(0)
   f1 = Formula(c1)
   f2 = Formula(c1, c2, c3)
 

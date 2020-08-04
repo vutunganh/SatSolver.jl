@@ -47,7 +47,7 @@ end
 Formula(clauses::Vector{Clause}) = Formula(determine_variable_count(clauses),
                                            clauses)
 Formula(clauses::Vararg{Clause}) = Formula([clauses...])
-Formula() = Formula(0, [])
+Formula(var_count) = Formula(var_count, [])
 
 for f in readonly_vector_wrapper_functions
   @eval Base.$f(fla::Formula, args...) = Base.$f(fla.clauses, args...)
