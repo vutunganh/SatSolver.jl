@@ -53,6 +53,10 @@ for f in readonly_vector_wrapper_functions
   @eval Base.$f(fla::Formula, args...) = Base.$f(fla.clauses, args...)
 end
 
+function Base.push!(fla::Formula, cl::Clause)
+  push!(fla.clauses, cl)
+end
+
 # TODO: Implement in subquadratic time.
 function ==(f1::Formula, f2::Formula)
   for c1 in f1.clauses
@@ -79,6 +83,8 @@ end
 
 PartialAssignment(n::Number) = PartialAssignment(zeros(Int8, n))
 
+PartialAssignment(fla::Formula) = PartialAssignment(fla.variable_count)
+
 for f in readonly_vector_wrapper_functions
   @eval Base.$f(pa::PartialAssignment, args...) = Base.$f(pa.assignment, args...)
 end
@@ -94,6 +100,18 @@ end
 
 function copy(pa::PartialAssignment)
   PartialAssignment(copy(pa.assignment))
+end
+
+function all_variables_assigned(pa::PartialAssignment)
+  return all(pa) do x
+    0 != x
+  end
+end
+
+function clear_partial_assignment(pa::PartialAssignment)
+  for i in 1:length(pa)
+    pa[i] = 0
+  end
 end
 
 function is_clause_satisfied(cl::Clause, pa::PartialAssignment)
@@ -150,15 +168,21 @@ function find_unit_literal(cl::Clause, pa::PartialAssignment)::Int
   cl[findfirst((l) -> is_literal_undecided(l, pa), cl)]
 end
 
+"""
+    find_unit_literal(fla::Formula, pa::PartialAssignment)
+
+Finds a unit clause in `fla` and returns a pair of unit_literal and the index of
+the unit clause. If no unit clause exists, returns a pair `(0, 0)`.
+"""
 function find_unit_literal(fla::Formula, pa::PartialAssignment)
-  for cl in fla
-    tmp = find_unit_literal(cl, pa)
-    if 0 != tmp
-      return tmp
+  for (cl_i, cl) in enumerate(fla)
+    unit_literal = find_unit_literal(cl, pa)
+    if 0 != unit_literal
+      return (unit_literal, cl_i)
     end
   end
 
-  0
+  (0, 0)
 end
 
 abstract type SatSolverResult end

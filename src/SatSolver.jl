@@ -20,4 +20,7 @@ export brute_force
 include("dpll.jl")
 export dpll
 
+include("cdcl.jl")
+export cdcl
+
 end # module

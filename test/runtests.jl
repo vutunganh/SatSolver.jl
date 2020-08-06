@@ -8,4 +8,5 @@ include("utils.jl")
   include("nnf_parser.jl")
   include("io.jl")
   include("dpll.jl")
+  include("cdcl.jl")
 end
